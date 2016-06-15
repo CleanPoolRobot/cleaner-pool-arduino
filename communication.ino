@@ -8,6 +8,9 @@
 #define INTERNAL_PRESSURE A1
 #define EXTERNAL_PRESSURE A5
 #define PUMP 8
+#define BRUSH_FRONT 9
+#define BRUSH_BACK 10
+
 //change after values
 #define REQUEST_INTERNAL_PRESSURE 'A'
 #define REQUEST_EXTERNAL_PRESSURE 'B'
@@ -17,10 +20,14 @@
 #define REQUEST_RIGHT_DISTANCE 'F'
 #define MOTOR_PUMP_ON 'G'
 #define MOTOR_PUMP_OFF 'H'
+#define BRUSH_FRONT_ON 'I'
+#define BRUSH_FRONT_OFF 'J'
+#define BRUSH_BACK_ON 'K'
+#define BRUSH_BACK_OFF 'L'
+
 int output = 3;
 int value;
 byte data_rpi;
-
 char data_request;
 
 void setup(){
@@ -54,11 +61,17 @@ float readPressure(int pin){
 
 void send_distance (int pin )
 {
-  Serial.println("Enviando dados sobre distancia");
-  int value_write;
-  value_write = digitalRead(pin);
-  write_uart(value_write); 
+  pinMode(pin,INPUT);
+  int state = digitalRead(pin);
+  
+  if (state == HIGH) { //nenhum objeto detectado
+    Serial.println('N');
+  } 
+  else { //objeto detectado
+    Serial.println('S');
+  } 
 }
+
 void write_uart( byte data )
 {
   Serial.println(data);
@@ -66,23 +79,23 @@ void write_uart( byte data )
   //Serial.write( data_to_rpi ); // It's kind magic!
 }
 
-void turn_on_pump(int pin)
-{
-   pinMode(pin,OUTPUT);
-   digitalWrite(pin,HIGH);
-   Serial.println("Ligando bomba");
-}
-
-void turn_off_pump(int pin)
+void turn_on_engine(int pin)
 {
    pinMode(pin,OUTPUT);
    digitalWrite(pin,LOW);
+   Serial.println("Ligando bomba");
+}
+
+void turn_off_engine(int pin)
+{
+   pinMode(pin,OUTPUT);
+   digitalWrite(pin,HIGH);
    Serial.println("Desligando bomba");
 }
 
 void loop()
 {
-  if(Serial.available() > 0){
+  if(Serial.available()){
   data_request = Serial.read();
   //Serial.print("Requisição recebida: ");
   //Serial.println(data_request);
@@ -99,7 +112,7 @@ void loop()
     break;
 
     case REQUEST_FRONT_DISTANCE:
-      Serial.println("Requisitando distancia frontal... \n");
+      //Serial.println("Requisitando distancia frontal... \n");
       send_distance(FRONT_DISTANCE_SENSOR);   
     break;
     
@@ -116,14 +129,29 @@ void loop()
     break;
 
     case MOTOR_PUMP_ON:
-      turn_on_pump(PUMP);
+      turn_on_engine(PUMP);
     break;
 
     case MOTOR_PUMP_OFF:
-      turn_off_pump(PUMP);
+      turn_off_engine(PUMP);
+    break;
+    
+    case BRUSH_FRONT_ON:
+      turn_on_engine(BRUSH_FRONT);
+    break;
+      
+    case BRUSH_FRONT_OFF:
+      turn_off_engine(BRUSH_FRONT);
+    break;
+    
+    case BRUSH_BACK_ON:
+      turn_on_engine(BRUSH_BACK);
+    break;
+    
+    case BRUSH_BACK_OFF:
+      turn_off_engine(BRUSH_BACK);
     break;
   }
  }
-  data_request = Serial.read();
-  printf("Valor que será escrito %c\n\n",data_request);
 }
+
