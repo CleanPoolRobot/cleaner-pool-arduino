@@ -3,8 +3,8 @@
 
 #define REAR_DISTANCE_SENSOR 4
 #define LEFT_DISTANCE_SENSOR 7
-#define RIGHT_DISTANCE_SENSOR 12
-#define FRONT_DISTANCE_SENSOR 13
+#define RIGHT_DISTANCE_SENSOR 13
+#define FRONT_DISTANCE_SENSOR 12
 #define INTERNAL_PRESSURE A1
 #define EXTERNAL_PRESSURE A5
 #define PUMP 8
@@ -28,6 +28,7 @@
 int output = 3;
 int value;
 byte data_rpi;
+int i = 0;
 char data_request;
 
 void setup(){
@@ -65,11 +66,14 @@ void send_distance (int pin )
   int state = digitalRead(pin);
   
   if (state == HIGH) { //nenhum objeto detectado
-    Serial.println('N');
+    Serial.print(0);
   } 
   else { //objeto detectado
-    Serial.println('S');
+    Serial.print(1);
   } 
+  
+  //Serial.println(i);
+  //i++;
 }
 
 void write_uart( byte data )
@@ -83,14 +87,14 @@ void turn_on_engine(int pin)
 {
    pinMode(pin,OUTPUT);
    digitalWrite(pin,LOW);
-   Serial.println("Ligando bomba");
+   //Serial.println("Ligando bomba");
 }
 
 void turn_off_engine(int pin)
 {
    pinMode(pin,OUTPUT);
    digitalWrite(pin,HIGH);
-   Serial.println("Desligando bomba");
+   //Serial.println("Desligando bomba");
 }
 
 void loop()
